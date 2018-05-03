@@ -8,3 +8,8 @@ prerequisites:
    GridWetData
    netCDF4
    matplotlib (optional) - for plotting/debugging
+
+If a non-local version of GridWetData is applied, remember (in bash) to search path
+
+  export PYTHONPATH=<PARENTDIR-OF-GridWetData>:${PYTHONPATH}
+
