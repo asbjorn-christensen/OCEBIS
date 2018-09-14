@@ -38,9 +38,9 @@ for it in range(nt):
     gsv  = g3v.get_surface_layer(setwetmask=True)
     curl = gsv.curl()
     #
-    plt.contourf(transpose(curl.data))
-    plt.colorbar()
-    plt.show()
+    #plt.contourf(transpose(curl.data))
+    #plt.colorbar()
+    #plt.show()
     # --- dump data ---
     curl.grid.write_data_as_COARDS(ncf,  curl.data,  info, time_frame_number=it)
 #

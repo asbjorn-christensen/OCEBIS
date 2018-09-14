@@ -6,7 +6,7 @@
 #   input  in CMEMS netcdf format   
 #   output in COARDS netcdf format
 #
-#   usage: density_strat.py  < temperature-data>   < stratification-depth >  < stratification-strength >
+#   usage: temp_strat.py  < temperature-data>   < stratification-depth >  < stratification-strength >
 #
 #   
 ###################################################################################################
