@@ -10,6 +10,7 @@
 #   ncview *.nc
 ###################################################################################################
 import os
+import subprocess
 
 test_NWS_TEMP = "testdata/NWS/MetO-NWS-PHYS-hi-TEM.nc"
 test_NWS_SALT = "testdata/NWS/MetO-NWS-PHYS-hi-SAL.nc"
@@ -49,15 +50,28 @@ schedule = {
  
 
 for script in schedule.keys():
-    print 100*"-"
-    print "executing: ", script
     cmd = script
+    stem,ext = os.path.splitext(script)
+    fh_err = open(stem+".stderr","w")
+    fh_out = open(stem+".stdout","w")
+    fh_out.write("executing: %s\n" % script)
     for key in ("args", "input", "output"):
         token = schedule[script][key]
-        print " %s : %s" % (key, token)
+        fh_out.write(" %s : %s\n" % (key, token))
         cmd = cmd + (" %s " % token)
-    print ">",
-    os.system(cmd)
-    #print cmd,
-    print "<",
+    fh_out.write(100*"-" + "\n")
+    fh_out.flush()
+    retval = subprocess.call(cmd, bufsize=0,
+                             stderr=fh_err,
+                             stdout=fh_out,
+                             shell=True)
+    #fh_out.flush()
+    #fh_out.close()
+    
+    #fh_err.close()
+    if retval == 0:
+        print "%s : success" % script
+    else:
+        print "%s : FAILED" % script
+   
     
