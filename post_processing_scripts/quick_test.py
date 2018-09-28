@@ -17,7 +17,7 @@ test_NWS_SALT = "testdata/NWS/MetO-NWS-PHYS-hi-SAL.nc"
 test_NWS_CURR = "testdata/NWS/MetO-NWS-PHYS-hi-CUR.nc"
 test_NWS_TBOT = "testdata/NWS/MetO-NWS-PHYS-dm-BED.nc"
 test_NWS_MLD  = "testdata/NWS/MetO-NWS-PHYS-dm-MLD.nc"
-
+test_NWS_PHYT = "testdata/NWS/MetO-NWS-REAN-BIO-daily-PHYT.nc"
 schedule = {
 "density_strat.py" : {"args":   "",
                       "input":  test_NWS_TEMP + " " + test_NWS_SALT,
@@ -45,7 +45,11 @@ schedule = {
                          
 "pass_through_MLD.py" : {"args":   "",
                          "input":  test_NWS_MLD,
-                         "output": "mixed_layer_depth.nc"}
+                         "output": "mixed_layer_depth.nc"},
+                         
+"locate_peak.py" : {"args":   "",
+                         "input":  test_NWS_PHYT,
+                         "output": "phyto_depth_at_max.nc phyto_vertical_max.nc"},                
 }
  
 
