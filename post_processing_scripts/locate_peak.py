@@ -32,8 +32,6 @@ nt   = data.get_number_of_frames()
 nx   = data.grid.nx
 ny   = data.grid.ny
 nz   = data.grid.nz
-depth_data  = zeros((nt, nx, ny), float)
-maxval_data = zeros((nt, nx, ny), float)
 #
 ncf_depth = netcdf.Dataset(sys.argv[2], "w")
 info_depth = {'variable_name':"%s_depth" % data.prop,
@@ -53,15 +51,19 @@ info_valmax = {'variable_name':"%s_max" % data.prop,
 for it in range(nt):
     print "%d / %d" % (it+1,nt)
     data_frame  = data.load_frame(it)
-    z     = reshape(data_frame.grid.ccdepth, (nx*ny, nz))
-    y     = reshape(data_frame.data,         (nx*ny, nz))
-    blay  = reshape(data_frame.grid.bottom_layer, nx*ny)   # assume in sync with salt
+    # --- loop over water columns ---
+    zmax    = zeros((nx,ny), float)
+    maxval  = zeros((nx,ny), float)
+    for ix in range(nx):
+        for iy in range(ny):
+            ib = data_frame.grid.bottom_layer[ix,iy]    # short hand, assume temp+salt in sync
+            if ib<0:                                    # skip land points
+                continue
+            z  = data_frame.grid.ccdepth[ix,iy,:(ib+1)] # short hand
+            y  = data_frame.data[ix,iy,:(ib+1)]         # short hand
+
+            zmax[ix,iy], maxval[ix,iy] = find_maximum_value(z, y, ib) 
     #
-    zmax, maxval    = find_maximum_value(z, y, blay)        # NB: density increases with depth
-    #accept = (zmin < depth_threshold) & (gradmin > grad_threshold) # NB: density increases with depth 
-    #zmin    = where(accept, zmin,    0.0)
-    #gradmin = where(accept, gradmin, 0.0)
-    
     g2d = data_frame.grid.export_horizontal_grid()
     g2d.write_data_as_COARDS(ncf_depth,  reshape(zmax,   (nx,ny)), info_depth,  time_frame_number=it)
     g2d.write_data_as_COARDS(ncf_valmax, reshape(maxval, (nx,ny)), info_valmax, time_frame_number=it)

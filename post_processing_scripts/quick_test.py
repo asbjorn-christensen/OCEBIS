@@ -18,6 +18,8 @@ test_NWS_CURR = "testdata/NWS/MetO-NWS-PHYS-hi-CUR.nc"
 test_NWS_TBOT = "testdata/NWS/MetO-NWS-PHYS-dm-BED.nc"
 test_NWS_MLD  = "testdata/NWS/MetO-NWS-PHYS-dm-MLD.nc"
 test_NWS_PHYT = "testdata/NWS/MetO-NWS-REAN-BIO-daily-PHYT.nc"
+test_NWS_PPRD = "testdata/NWS/MetO-NWS-REAN-BIO-daily-PPRD.nc"
+test_NWS_ATTN = "testdata/NWS/MetO-NWS-REAN-BIO-daily-ATTN.nc"
 schedule = {
 "density_strat.py" : {"args":   "",
                       "input":  test_NWS_TEMP + " " + test_NWS_SALT,
@@ -28,16 +30,16 @@ schedule = {
                          "output": "estaurine_front.nc"},
 
 "surf_bott_temp.py" : {"args":   "", 
-                         "input":  test_NWS_TEMP,
-                         "output": "surf_temperature.nc  surf_bott_stratification.nc  grad_surf_bott_stratification.nc"},
+                        "input":  test_NWS_TEMP,
+                        "output": "surf_temperature.nc  surf_bott_stratification.nc  grad_surf_bott_stratification.nc"},
                          
 "temp_strat.py" : {"args":   "",
-                         "input":  test_NWS_TEMP,
-                         "output": "stratification_depth.nc  stratification_strength.nc"},
+                    "input":  test_NWS_TEMP,
+                    "output": "stratification_depth.nc  stratification_strength.nc"},
                          
 "vorticity.py" : {"args":   "",
-                         "input":  test_NWS_CURR,
-                         "output": "vorticity_data.nc"},
+                "input":  test_NWS_CURR,
+                "output": "vorticity_data.nc"},
                          
 "pass_through_BED.py" : {"args":   "",
                          "input":  test_NWS_TBOT,
@@ -48,8 +50,16 @@ schedule = {
                          "output": "mixed_layer_depth.nc"},
                          
 "locate_peak.py" : {"args":   "",
-                         "input":  test_NWS_PHYT,
-                         "output": "phyto_depth_at_max.nc phyto_vertical_max.nc"},                
+                    "input":  test_NWS_PHYT,
+                    "output": "phyto_depth_at_max.nc phyto_vertical_max.nc"},
+
+"bloom_index.py" : {"args":   "",
+                    "input":  test_NWS_PPRD,
+                    "output": "bloom_index.nc"},
+
+"light_at_seabed.py" : {"args":   "",
+                    "input":  test_NWS_ATTN,
+                    "output": "log_light_at_seabed.nc"}                         
 }
  
 
@@ -65,10 +75,8 @@ for script in schedule.keys():
         cmd = cmd + (" %s " % token)
     fh_out.write(100*"-" + "\n")
     fh_out.flush()
-    retval = subprocess.call(cmd, bufsize=0,
-                             stderr=fh_err,
-                             stdout=fh_out,
-                             shell=True)
+    retval = subprocess.call(cmd, bufsize=0, stderr=fh_err, stdout=fh_out, shell=True)
+    #retval = 0; print cmd
     #fh_out.flush()
     #fh_out.close()
     

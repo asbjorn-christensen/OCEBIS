@@ -38,8 +38,6 @@ nt     = temp.get_number_of_frames()
 nx     = temp.grid.nx
 ny     = temp.grid.ny
 nz     = temp.grid.nz
-depth_data = zeros((nt, nx, ny), float)
-grad_data  = zeros((nt, nx, ny), float)
 #
 ncf_depth = netcdf.Dataset(sys.argv[2], "w")
 info_depth = {'variable_name':"strat_depth",
@@ -59,12 +57,20 @@ info_grad = {'variable_name':"strat_grad",
 for it in range(nt):
     print "%d / %d" % (it+1,nt)
     gd3d  = temp.load_frame(it)
-    z     = reshape(gd3d.grid.ccdepth, (nx*ny, nz))
-    y     = reshape(gd3d.data,         (nx*ny, nz))
-    blay  = reshape(gd3d.grid.bottom_layer, nx*ny)
-    #plt.contour(transpose(gd3d.grid.bottom_layer))
-    #plt.show()
-    zmin, gradmin    = find_lowest_gradient(z, y, blay)
+
+    zmin     = zeros((nx,ny), float)
+    gradmin  = zeros((nx,ny), float)
+    for ix in range(nx):
+        for iy in range(ny):
+            ib = gd3d.grid.bottom_layer[ix,iy]    # short hand, assume temp+salt in sync
+            if ib<0:                                    # skip land points
+                continue
+            z  = gd3d.grid.ccdepth[ix,iy,:(ib+1)] # short hand
+            y  = gd3d.data[ix,iy,:(ib+1)]         # short hand
+            zmin[ix,iy], gradmin[ix,iy] = find_lowest_gradient(z, y, ib)
+    #        
+    # --- whole array checks  ---
+    #
     accept = (zmin < depth_threshold) & (gradmin < -grad_threshold)
     zmin    = where(accept, zmin,    0.0)
     gradmin = where(accept, gradmin, 0.0)
@@ -77,6 +83,7 @@ for it in range(nt):
     g2d = gd3d.grid.export_horizontal_grid()
     g2d.write_data_as_COARDS(ncf_depth, reshape(zmin, (nx,ny)),   info_depth, time_frame_number=it)
     g2d.write_data_as_COARDS(ncf_grad, reshape(gradmin, (nx,ny)), info_grad,  time_frame_number=it)
+    #if it==3: break
 #
 ncf_depth.variables["time"].units = temp.ncfdata.ncf.variables["time"].units   # pass through
 ncf_depth.close()
